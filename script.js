@@ -190,3 +190,45 @@ function renderWeather(data) {
     <p class="text-slate-400 text-sm">No extended forecast available for this endpoint.</p>
   `;
 }
+
+// city search function
+async function searchCity(city) {
+  if (!city.trim()) {
+    showUIMessage("Please enter a city name.", "error");
+    return;
+  }
+  showUIMessage("Loading weather data...");
+  try {
+    const data = await fetchWeatherByCity(city);
+    renderWeather(data);
+    addToRecentCities(data.name);
+    showUIMessage("Weather updated successfully!");
+  } catch (err) {
+    console.error(err);
+    showUIMessage("Error fetching data. Please try again.", "error");
+  }
+}
+
+// get weather data by accessing user location
+async function useLocation() {
+  if (!navigator.geolocation) {
+    showUIMessage("Geolocation not supported.", "error");
+    return;
+  }
+  showUIMessage("Fetching your location...");
+  navigator.geolocation.getCurrentPosition(
+    async (pos) => {
+      try {
+        const { latitude, longitude } = pos.coords;
+        const data = await fetchWeatherByCoords(latitude, longitude);
+        renderWeather(data);
+        addToRecentCities(data.name);
+        showUIMessage("Weather for your location loaded!");
+      } catch (err) {
+        console.error(err);
+        showUIMessage("Error fetching weather for location.", "error");
+      }
+    },
+    () => showUIMessage("Unable to access location.", "error")
+  );
+}
