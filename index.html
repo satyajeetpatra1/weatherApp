@@ -10,9 +10,47 @@
 
     <!-- tailwind cdn -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-  </head>
-  <body>
 
+    <!-- tailwind modification -->
+     <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#60a5fa', // blue
+            accent: '#6ee7b7',  // green-teal
+            bgdark: '#061322',
+            card: '#0b1220'
+          },
+          fontFamily: {
+            inter: ['Inter', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  </head>
+  <body
+    class="min-h-screen bg-gradient-to-b from-[#07111a] via-[#061322] to-[#05121a] text-slate-100 font-inter"
+  >
+    <!-- header -->
+    <header class="py-6 border-b border-white/35">
+      <div class="max-w-6xl mx-auto px-4 flex items-center justify-between">
+        <div>
+          <h1 class="text-2xl font-semibold text-primary">
+            Weather Forecast App
+          </h1>
+          <p class="text-sm text-slate-400">
+            Search by city or use your current location. Shows current weather +
+            5-day forecast.
+          </p>
+        </div>
+
+        <div class="text-sm hidden md:block text-slate-400">
+          <span>Built with HTML | CSS | Tailwind | JS</span>
+        </div>
+      </div>
+    </header>
 
     <!-- javascript -->
     <script src="script.js"></script>
