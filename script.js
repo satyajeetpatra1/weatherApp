@@ -119,3 +119,38 @@ function renderRecentSelect() {
     recentSelect.appendChild(opt);
   });
 }
+
+// api calling functions
+async function fetchJson(url) {
+  const res = await fetch(url);
+  return res.json();
+}
+
+// get latitude and longitude from city name
+async function geocodeCity(city) {
+  const url = `${GEOCODE_URL}?q=${encodeURIComponent(
+    city
+  )}&limit=1&appid=${OPENWEATHER_API_KEY}`;
+  const data = await fetchJson(url);
+  if (!data || data.length === 0) throw new Error("City not found");
+  return {
+    lat: data[0].lat,
+    lon: data[0].lon,
+    name: data[0].name,
+    country: data[0].country,
+  };
+}
+
+// get weather data from latitude and longitude
+async function fetchWeatherByCoords(lat, lon) {
+  const url = `${WEATHER_URL}?lat=${lat}&lon=${lon}&units=metric&appid=${OPENWEATHER_API_KEY}`;
+  return fetchJson(url);
+}
+
+// first get latitude and longitude from city name and then get weather data using it
+async function fetchWeatherByCity(city) {
+  const geo = await geocodeCity(city);
+  const data = await fetchWeatherByCoords(geo.lat, geo.lon);
+  data.name = `${geo.name}, ${geo.country}`;
+  return data;
+}
