@@ -232,3 +232,36 @@ async function useLocation() {
     () => showUIMessage("Unable to access location.", "error")
   );
 }
+
+// event listeners required
+searchBtn.addEventListener("click", () => searchCity(cityInput.value));
+
+cityInput.addEventListener("keypress", (e) => {
+  if (e.key === "Enter") searchCity(cityInput.value);
+});
+
+locBtn.addEventListener("click", useLocation);
+
+recentSelect.addEventListener("change", () => {
+  const city = recentSelect.value;
+  if (city) searchCity(city);
+});
+
+cToggle.addEventListener("click", () => {
+  displayUnit = "C";
+  fToggle.className = "px-3 py-1 rounded bg-transparent border border-white/6";
+  cToggle.className = "px-3 py-1 rounded bg-white/6";
+  if (lastWeatherData) renderWeather(lastWeatherData);
+});
+
+fToggle.addEventListener("click", () => {
+  displayUnit = "F";
+  cToggle.className = "px-3 py-1 rounded bg-transparent border border-white/6";
+  fToggle.className = "px-3 py-1 rounded bg-white/6";
+  if (lastWeatherData) renderWeather(lastWeatherData);
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  loadRecentCities();
+  showUIMessage("Ready — search a city or use location.");
+});
