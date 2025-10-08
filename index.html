@@ -10,25 +10,6 @@
 
     <!-- tailwind cdn -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-
-    <!-- tailwind modification -->
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              primary: "#60a5fa", // blue
-              accent: "#6ee7b7", // green-teal
-              bgdark: "#061322",
-              card: "#0b1220",
-            },
-            fontFamily: {
-              inter: ["Inter", "sans-serif"],
-            },
-          },
-        },
-      };
-    </script>
   </head>
   <body
     class="min-h-screen bg-gradient-to-b from-[#07111a] via-[#061322] to-[#05121a] text-slate-100 font-inter"
@@ -68,7 +49,7 @@
             <input
               id="cityInput"
               type="text"
-              placeholder="e.g., London"
+              placeholder="e.g., Faridabad"
               class="mt-1 w-full rounded-lg bg-transparent border border-white/6 px-3 py-2 outline-none focus:ring-2 focus:ring-[#60a5fa]"
             />
           </div>
@@ -76,14 +57,15 @@
           <div class="flex gap-2">
             <button
               id="searchBtn"
-              class="flex-1 py-2 rounded-lg bg-gradient-to-r from-[#60a5fa] to-[#6ee7b7] text-slate-900 font-semibold"
+              type="button"
+              class="flex-1 cursor-pointer py-2 rounded-lg bg-gradient-to-r from-[#60a5fa] to-[#6ee7b7] text-slate-900 font-semibold"
             >
               Search
             </button>
             <button
               id="locBtn"
               type="button"
-              class="px-3 py-2 rounded-lg border border-white/6"
+              class="px-3 py-2 cursor-pointer rounded-lg border border-white/6"
             >
               Use Current Location
             </button>
@@ -95,6 +77,7 @@
               id="recentSelect"
               class="mt-1 w-full rounded-lg bg-transparent border border-white/6 px-3 py-2"
             >
+              <!-- recent values to be fetched by localstorage -->
               <option value="">— No recent searches —</option>
             </select>
           </div>
@@ -102,12 +85,17 @@
           <div class="flex items-center gap-3 mt-2">
             <label class="text-sm text-slate-300">Unit</label>
             <div class="flex items-center gap-2">
-              <button id="cToggle" class="px-3 py-1 rounded bg-white/6">
+              <button
+                id="cToggle"
+                type="button"
+                class="px-3 py-1 cursor-pointer rounded bg-white/6"
+              >
                 °C
               </button>
               <button
                 id="fToggle"
-                class="px-3 py-1 rounded bg-transparent border border-white/6"
+                type="button"
+                class="px-3 py-1 rounded bg-transparent cursor-pointer border border-white/6"
               >
                 °F
               </button>
@@ -122,19 +110,12 @@
           id="customAlert"
           class="mt-4 hidden p-3 rounded-lg bg-yellow-600/20 text-yellow-200"
         ></div>
-
-        <hr class="my-4 border-white/6" />
-
-        <div class="text-sm text-slate-400">
-          <strong>Notes:</strong> This demo uses <em>OpenWeatherMap</em>. Put
-          your API key in `script.js` as instructed.
-        </div>
       </section>
 
       <!-- Middle: Current weather card -->
       <section
         id="currentCard"
-        class="lg:col-span-2 p-6 rounded-2xl bg-[#0b1220]/60 border border-white/5 shadow-lg"
+        class="lg:col-span-2 p-6 rounded-2xl bg-[#0b1220]/60 border border-white/5 shadow-lg hidden"
       >
         <div id="currentInner" class="transition-all duration-300 ease-in-out">
           <!-- Content injected by JS -->
