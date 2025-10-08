@@ -10,6 +10,13 @@
 
     <!-- tailwind cdn -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+    <!-- google icons -->
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"
+      rel="stylesheet"
+    />
   </head>
   <body
     class="min-h-screen bg-gradient-to-b from-[#07111a] via-[#061322] to-[#05121a] text-slate-100 font-inter"
@@ -65,7 +72,7 @@
             <button
               id="locBtn"
               type="button"
-              class="px-3 py-2 cursor-pointer rounded-lg border border-white/6"
+              class="px-3 py-2 cursor-pointer rounded-lg border border-white/6 bg-gradient-to-r from-[#6db7fc] to-[#a267c5] text-slate-900 font-semibold"
             >
               Use Current Location
             </button>
@@ -161,12 +168,19 @@
           </div>
 
           <div class="mt-6">
-            <h4 class="text-sm text-[#6ee7b7] font-medium mb-3">
-              5-Day Forecast
-            </h4>
+            <div class="flex w-full justify-between px-4">
+              <span class="text-sm text-[#6ee7b7] font-medium mb-3">
+                5-Day Forecast
+              </span>
+              <span id="extendCollapseIcon" class="cursor-pointer">
+                <span class="material-symbols-outlined">
+                  expand_circle_down
+                </span>
+              </span>
+            </div>
             <div
               id="forecastRow"
-              class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-3"
+              class="hidden grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-3"
             >
               <!-- forecast cards injected by js -->
             </div>

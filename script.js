@@ -5,6 +5,7 @@ const OPENWEATHER_API_KEY = "043d60d85a7c98befa07698cc4ba1640";
 const WEATHER_URL = "https://api.openweathermap.org/data/2.5/weather";
 const GEOCODE_URL = "https://api.openweathermap.org/geo/1.0/direct";
 const OPENWEATHER_ICON_URL = "https://openweathermap.org/img/wn";
+const FORECAST_URL = "https://api.openweathermap.org/data/2.5/forecast";
 
 // dom elements needed
 const cityInput = document.getElementById("cityInput");
@@ -31,14 +32,15 @@ const visibilityEl = document.getElementById("visibility");
 
 const currentCard = document.getElementById("currentCard");
 
-const forecastRow = document.getElementById("forecastRow"); // kept for layout balance
+const extendCollapseIcon = document.getElementById("extendCollapseIcon");
+const forecastRow = document.getElementById("forecastRow");
 
 // variables
 let recentCities = [];
 let lastWeatherData = null;
+let lastForecastData = null;
 let displayUnit = "C"; // default to Celsius
-
-
+let isForecastExtended = false; //default collapsed
 
 // functions
 
@@ -155,13 +157,28 @@ async function fetchWeatherByCity(city) {
   return data;
 }
 
+async function fetchForecastByCoords(lat, lon) {
+  const url = `${FORECAST_URL}?lat=${lat}&lon=${lon}&units=metric&appid=${OPENWEATHER_API_KEY}`;
+  return fetchJson(url);
+}
+
+async function fetchWeatherAndForecast(city) {
+  const geo = await geocodeCity(city);
+  const [weather, forecast] = await Promise.all([
+    fetchWeatherByCoords(geo.lat, geo.lon),
+    fetchForecastByCoords(geo.lat, geo.lon),
+  ]);
+  weather.name = `${geo.name}, ${geo.country}`;
+  return { weather, forecast };
+}
+
 // render weather data in dom
 function renderWeather(data) {
   currentCard.classList.remove("hidden");
   lastWeatherData = data;
   const { name, sys, main, weather, wind, visibility, timezone } = data;
 
-  locationNameEl.textContent = `${name || "Unknown"}, ${sys.country}`;
+  locationNameEl.textContent = `${name || "Unknown"}`;
   localTimeEl.textContent = formatLocalTime(timezone);
   weatherDescEl.textContent = weather[0].description.toUpperCase();
   todayTempEl.textContent = formatTemp(main.temp);
@@ -185,10 +202,55 @@ function renderWeather(data) {
   if (main.temp >= 40) showCustomAlertText("🔥 Extreme Heat Alert!");
   if (main.temp <= 5) showCustomAlertText("❄️ Extreme Cold Alert!");
 
-  // Clear forecast row (no extended forecast in current weather API)
+  // Clear forecast row
   forecastRow.innerHTML = `
     <p class="text-slate-400 text-sm">No extended forecast available for this endpoint.</p>
   `;
+}
+
+function groupForecastByDay(forecastList) {
+  const grouped = {};
+  forecastList.forEach((item) => {
+    const date = item.dt_txt.split(" ")[0];
+    if (!grouped[date]) grouped[date] = [];
+    grouped[date].push(item);
+  });
+  return Object.entries(grouped).slice(0, 5); // only next 5 days
+}
+
+function renderForecast(data) {
+  lastForecastData = data;
+  const grouped = groupForecastByDay(data.list);
+
+  forecastRow.innerHTML = ""; // clear old
+
+  grouped.forEach(([date, entries]) => {
+    const temps = entries.map((e) => e.main.temp);
+    const winds = entries.map((e) => e.wind.speed);
+    const hums = entries.map((e) => e.main.humidity);
+    const avgTemp = temps.reduce((a, b) => a + b, 0) / temps.length;
+    const avgWind = winds.reduce((a, b) => a + b, 0) / winds.length;
+    const avgHum = hums.reduce((a, b) => a + b, 0) / hums.length;
+    const icon = entries[0].weather[0].icon;
+    const desc = entries[0].weather[0].description;
+
+    const card = document.createElement("div");
+    card.className =
+      "bg-slate-800 p-4 rounded-2xl shadow-lg text-center flex flex-col gap-2";
+    card.innerHTML = `
+      <p class="text-slate-300 font-semibold">${new Date(
+        date
+      ).toDateString()}</p>
+      <img src="${OPENWEATHER_ICON_URL}/${icon}.png" alt="${desc}" class="w-12 h-12 mx-auto" />
+      <p class="text-lg text-white font-bold">${formatTemp(avgTemp)}</p>
+      <p class="text-slate-400 text-sm">${desc}</p>
+      <div class="text-slate-400 text-xs">
+        <p>💨 ${avgWind.toFixed(1)} m/s</p>
+        <p>💧 ${avgHum.toFixed(0)}%</p>
+      </div>
+    `;
+    forecastRow.appendChild(card);
+  });
 }
 
 // city search function
@@ -199,9 +261,10 @@ async function searchCity(city) {
   }
   showUIMessage("Loading weather data...");
   try {
-    const data = await fetchWeatherByCity(city);
-    renderWeather(data);
-    addToRecentCities(data.name);
+    const { weather, forecast } = await fetchWeatherAndForecast(city);
+    renderWeather(weather);
+    renderForecast(forecast);
+    addToRecentCities(weather.name);
     showUIMessage("Weather updated successfully!");
   } catch (err) {
     console.error(err);
@@ -220,9 +283,13 @@ async function useLocation() {
     async (pos) => {
       try {
         const { latitude, longitude } = pos.coords;
-        const data = await fetchWeatherByCoords(latitude, longitude);
-        renderWeather(data);
-        addToRecentCities(data.name);
+        const [weather, forecast] = await Promise.all([
+          fetchWeatherByCoords(latitude, longitude),
+          fetchForecastByCoords(latitude, longitude),
+        ]);
+        renderWeather(weather);
+        renderForecast(forecast);
+        addToRecentCities(weather.name);
         showUIMessage("Weather for your location loaded!");
       } catch (err) {
         console.error(err);
@@ -252,6 +319,7 @@ cToggle.addEventListener("click", () => {
   fToggle.className = "px-3 py-1 rounded bg-transparent border border-white/6";
   cToggle.className = "px-3 py-1 rounded bg-white/6";
   if (lastWeatherData) renderWeather(lastWeatherData);
+  if (lastForecastData) renderForecast(lastForecastData);
 });
 
 fToggle.addEventListener("click", () => {
@@ -259,6 +327,26 @@ fToggle.addEventListener("click", () => {
   cToggle.className = "px-3 py-1 rounded bg-transparent border border-white/6";
   fToggle.className = "px-3 py-1 rounded bg-white/6";
   if (lastWeatherData) renderWeather(lastWeatherData);
+  if (lastForecastData) renderForecast(lastForecastData);
+});
+
+extendCollapseIcon.addEventListener("click", () => {
+  isForecastExtended = !isForecastExtended;
+  if (isForecastExtended) {
+    extendCollapseIcon.innerHTML = `<span class="material-symbols-outlined">
+            expand_circle_up
+        </span>`;
+
+    forecastRow.classList.remove("hidden");
+    forecastRow.classList.add("grid");
+  } else {
+    extendCollapseIcon.innerHTML = `<span class="material-symbols-outlined">
+            expand_circle_down
+        </span>`;
+
+    forecastRow.classList.remove("grid");
+    forecastRow.classList.add("hidden");
+  }
 });
 
 document.addEventListener("DOMContentLoaded", () => {
