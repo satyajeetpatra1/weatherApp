@@ -37,3 +37,43 @@ const forecastRow = document.getElementById("forecastRow"); // kept for layout b
 let recentCities = [];
 let lastWeatherData = null;
 let displayUnit = "C"; // default to Celsius
+
+
+
+// functions
+
+// alert and info
+function showUIMessage(msg, type = "info") {
+  uiMessage.textContent = msg;
+  uiMessage.className =
+    type === "error"
+      ? "text-red-400 text-sm mt-2"
+      : "text-slate-300 text-sm mt-2";
+  if (msg) setTimeout(() => (uiMessage.textContent = ""), 4000);
+}
+
+function showCustomAlertText(text) {
+  customAlert.textContent = text;
+  customAlert.classList.remove("hidden");
+  setTimeout(() => customAlert.classList.add("hidden"), 4000);
+}
+
+// format change functions
+function cToF(c) {
+  return (c * 9) / 5 + 32;
+}
+
+function formatTemp(tempC) {
+  return displayUnit === "C"
+    ? `${Math.round(tempC)}°C`
+    : `${Math.round(cToF(tempC))}°F`;
+}
+
+function formatLocalTime(timezoneOffset) {
+  const date = new Date(Date.now() + timezoneOffset * 1000);
+  return date.toLocaleString(undefined, {
+    weekday: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
