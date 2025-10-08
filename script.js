@@ -154,3 +154,39 @@ async function fetchWeatherByCity(city) {
   data.name = `${geo.name}, ${geo.country}`;
   return data;
 }
+
+// render weather data in dom
+function renderWeather(data) {
+  currentCard.classList.remove("hidden");
+  lastWeatherData = data;
+  const { name, sys, main, weather, wind, visibility, timezone } = data;
+
+  locationNameEl.textContent = `${name || "Unknown"}, ${sys.country}`;
+  localTimeEl.textContent = formatLocalTime(timezone);
+  weatherDescEl.textContent = weather[0].description.toUpperCase();
+  todayTempEl.textContent = formatTemp(main.temp);
+
+  humidityEl.textContent = `${main.humidity}%`;
+  windEl.textContent = `${wind.speed} m/s`;
+  pressureEl.textContent = `${main.pressure} hPa`;
+  visibilityEl.textContent = `${visibility} m`;
+
+  const icon = weather[0].icon;
+  weatherIconEl.innerHTML = `<img src="${OPENWEATHER_ICON_URL}/${icon}@2x.png" alt="weather icon" class="mx-auto" />`;
+
+  // Dynamic background
+  if (weather[0].main.toLowerCase().includes("rain")) {
+    document.body.classList.add("bg-rainy");
+  } else {
+    document.body.classList.remove("bg-rainy");
+  }
+
+  // Custom alert for extreme temperatures
+  if (main.temp >= 40) showCustomAlertText("🔥 Extreme Heat Alert!");
+  if (main.temp <= 5) showCustomAlertText("❄️ Extreme Cold Alert!");
+
+  // Clear forecast row (no extended forecast in current weather API)
+  forecastRow.innerHTML = `
+    <p class="text-slate-400 text-sm">No extended forecast available for this endpoint.</p>
+  `;
+}
