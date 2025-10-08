@@ -77,3 +77,45 @@ function formatLocalTime(timezoneOffset) {
     minute: "2-digit",
   });
 }
+
+// save and show recent functions
+function saveRecentCities() {
+  localStorage.setItem("recentCities", JSON.stringify(recentCities));
+}
+
+function loadRecentCities() {
+  recentCities = JSON.parse(localStorage.getItem("recentCities") || "[]");
+  renderRecentSelect();
+}
+
+function addToRecentCities(city) {
+  if (!city) return;
+  city = city.trim();
+  recentCities = recentCities.filter(
+    (c) => c.toLowerCase() !== city.toLowerCase()
+  );
+  recentCities.unshift(city);
+  if (recentCities.length > 5) recentCities.length = 5;
+  saveRecentCities();
+  renderRecentSelect();
+}
+
+function renderRecentSelect() {
+  recentSelect.innerHTML = "";
+  if (recentCities.length === 0) {
+    recentSelect.innerHTML = `<option>— No recent cities —</option>`;
+    return;
+  }
+  const defaultOpt = document.createElement("option");
+  defaultOpt.textContent = "Select recent city...";
+  defaultOpt.value = "";
+  recentSelect.appendChild(defaultOpt);
+
+  recentCities.forEach((city) => {
+    const opt = document.createElement("option");
+    opt.value = city;
+    opt.className = "bg-slate-900";
+    opt.textContent = city;
+    recentSelect.appendChild(opt);
+  });
+}
