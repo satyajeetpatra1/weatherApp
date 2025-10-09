@@ -24,8 +24,8 @@
 
 *** HOPE YOU LIKE THE PROJECT ***
 
-<!-- GITHUB LINK PROVIDED HERE -->
+*** GITHUB LINK PROVIDED HERE ***
 
 https://github.com/satyajeetpatra1/weatherApp
 
-<!-- GITHUB LINK PROVIDED HERE -->
+*** GITHUB LINK PROVIDED HERE ***
